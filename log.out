@@ -1,0 +1,10 @@
+DEBUG	2015-03-12 16:48:34,364	0	log4jDemo	[main]	This is debug test
+ERROR	2015-03-12 16:48:34,365	1	log4jDemo	[main]	Checking error :- Error
+FATAL	2015-03-12 16:48:34,365	1	log4jDemo	[main]	Checking error Fatal
+WARN	2015-03-12 16:48:34,365	1	log4jDemo	[main]	Checking error Warn
+INFO	2015-03-12 16:48:34,365	1	log4jDemo	[main]	Checking error :- Info
+DEBUG	2015-03-12 16:49:58,961	0	log4jDemo	[main]	This is debug test
+ERROR	2015-03-12 16:49:58,962	1	log4jDemo	[main]	Checking error :- Error
+FATAL	2015-03-12 16:49:58,962	1	log4jDemo	[main]	Checking error Fatal
+WARN	2015-03-12 16:49:58,962	1	log4jDemo	[main]	Checking error Warn
+INFO	2015-03-12 16:49:58,962	1	log4jDemo	[main]	Checking error :- Info

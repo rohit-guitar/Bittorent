@@ -98,18 +98,15 @@ public abstract class AbstractMessage {
     
     public static class Piece extends AbstractMessage{
     	private int pieceIndex; 
-        private int begin; 
         private byte[] piece; // piece 
        
         public int getPieceIndex(){return pieceIndex;}
-        public int getBegin(){return begin;}
         public byte[] getPiece(){return piece;}
         
 
-		public Piece(int a,int b,byte[] data) {
-			super(9+data.length, pieceid);
+		public Piece(int a,byte[] data) {
+			super(5+data.length, pieceid);
 			this.pieceIndex=a;
-			this.begin=b;
 			this.piece=data;
 		}
     	
@@ -117,18 +114,12 @@ public abstract class AbstractMessage {
     
     public static class Request extends AbstractMessage{
     	private int reqIndex;
-    	private int begin;
-    	private int messLen;
     	
     	public int getreqIndex(){return this.reqIndex;}
-    	public int getBegin(){return this.begin;}
-    	public int getMessLen(){return this.messLen;}
     	
-    	public Request(int a , int b, int c){
-    		super(13,requestid);
+    	public Request(int a){
+    		super(5,requestid);
     		this.reqIndex=a;
-    		this.begin=b;
-    		this.messLen=c;
     	}
     	
     }
@@ -152,7 +143,7 @@ public abstract class AbstractMessage {
 						decodeMess = new Have(feedPeer.readInt());
 						break;
 					case AbstractMessage.requestid:
-						decodeMess= new Request(feedPeer.readInt(), feedPeer.readInt(), feedPeer.readInt());
+						decodeMess= new Request(feedPeer.readInt());
 						break;
 					case AbstractMessage.bitfieldid:
 						byte[] bitField = new byte[messLen-1]; // 1 for type
@@ -161,10 +152,9 @@ public abstract class AbstractMessage {
 						break;
 					case AbstractMessage.pieceid:
 						int pIndex = feedPeer.readInt();
-						int start = feedPeer.readInt();
-						byte[] data = new byte[messLen-9]; //2 int and 1 for type 
+						byte[] data = new byte[messLen-5]; //2 int and 1 for type 
 						feedPeer.readFully(data);
-						decodeMess =  new Piece(pIndex, start, data);
+						decodeMess =  new Piece(pIndex, data);
 						break;
 					case AbstractMessage.chokeid:
 						decodeMess = AbstractMessage.choke;
@@ -209,13 +199,10 @@ public abstract class AbstractMessage {
 					case AbstractMessage.requestid:
 						Request req = (Request)message;
 						targetPeer.writeInt(req.getreqIndex());
-						targetPeer.writeInt(req.getBegin());
-						targetPeer.writeInt(req.getMessLen());
 						break;
 					case AbstractMessage.pieceid:
 						Piece p= (Piece) message;
 						targetPeer.writeInt(p.getPieceIndex());
-						targetPeer.writeInt(p.getBegin());
 						targetPeer.write(p.getPiece());
 						break;
 					default:
