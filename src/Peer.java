@@ -47,7 +47,7 @@ public class Peer extends Thread{
     public Peer(Socket sk , Torrent torrent){
     	this.skt= sk;
     	this.torrent = torrent;
-    	this.pStatus = new boolean [torrent.getNoPieces()];
+    	this.pStatus = new boolean [torrent.getpieceNUM()];
     	is_connect = true;
     	ID = null;
     	chock = aChock = true;
@@ -161,7 +161,7 @@ public class Peer extends Thread{
 					disconnect_Peer();
 				}
     			
-    			if ((torrent.getDoneCount() == torrent.getNoPieces()) && (pieceCount == torrent.getNoPieces())) {
+    			if ((torrent.getDoneNUM() == torrent.getpieceNUM()) && (pieceCount == torrent.getpieceNUM())) {
                     disconnect_Peer();
                 }
 

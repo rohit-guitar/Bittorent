@@ -3,6 +3,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 
 
@@ -219,13 +221,18 @@ public abstract class AbstractMessage {
     	
     }
     
-    public static final void sendHandShake(String peerID){
-    	try {
-			byte[] protocolName = CommonResource.handshakeHead.getBytes("ASCII");
-			
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+    public static final ByteBuffer sendHandShake(String peerID){
+    	byte[] handshake = new byte[32];
+        try {
+            byte[] head = CommonResource.handshakeHead.getBytes("ASCII");
+            System.arraycopy(head, 0, handshake, 0, head.length);
+            Arrays.fill(handshake, 18, 28, (byte)0);
+            System.arraycopy(peerID.getBytes("ASCII"), 0, handshake, 28, peerID.length());  
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return ByteBuffer.wrap(handshake);
     }
     
     
