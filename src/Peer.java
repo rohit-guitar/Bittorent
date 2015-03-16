@@ -32,12 +32,22 @@ public class Peer extends Thread{
     private int pieceCount;
     
     //Own peer
-    public Peer(String ID, String ipadd, int port, int no_pieces, Torrent torrent){
+    public Peer(String ID, String ipadd, int port, int no_pieces,int status,Torrent torrent){
     	this.ID=ID;
     	this.ipAdd=ipadd;
     	this.port=port;
     	this.torrent=torrent;
     	this.pStatus = new boolean[no_pieces];
+    	
+    		for(int i=0;i<this.pStatus.length;i++){
+    			if(status==1){
+    				this.pStatus[i]=true;
+    			}
+    			else{
+    				this.pStatus[i]=false;
+    			}
+    		}
+    	
     	chock = aChock = true;
     	interest = aInterest = is_connect = false;
     	this.pieceCount=0;
@@ -144,7 +154,7 @@ public class Peer extends Thread{
 							break;
 						case AbstractMessage.pieceid:
 							AbstractMessage.Piece piece = (AbstractMessage.Piece)recvMessage;
-							//call the function in torrent to get piece
+							torrent.pieceReceived(piece,this);							
 							break;
 						case AbstractMessage.keepaliveid:break;
 						default:
@@ -402,10 +412,10 @@ public class Peer extends Thread{
 		}
 	}
 	
-	public synchronized void sendPiece(int index){
+	public synchronized void sendPiece(AbstractMessage.Piece index){
 		LinkedList<AbstractMessage> outQueue = getOutQueue();
 		synchronized (outQueue) {
-			outQueue.addLast(new AbstractMessage.Have(index));
+			outQueue.addLast(index);
 			outQueue.notifyAll();
 		}
 	}	

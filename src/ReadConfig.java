@@ -4,7 +4,7 @@ import java.util.Properties;
 
 public class ReadConfig
 {
-	Properties configFile;
+	public static Properties configFile;
 	public ReadConfig()
 	{
 		configFile = new java.util.Properties();
