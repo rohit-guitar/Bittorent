@@ -1,5 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
@@ -11,12 +12,11 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.swing.border.AbstractBorder;
-
 
 
 public class Peer extends Thread{
 	public boolean reqCheck;
+	public int currIndex=-1;
 	private String ID;
 	private String ipAdd;
 	private int port;
@@ -149,7 +149,8 @@ public class Peer extends Thread{
 						case AbstractMessage.requestid:
 							AbstractMessage.Request req = (AbstractMessage.Request)recvMessage;
 							if(!aChock){
-								//torrent to get request received 
+								//torrent to get request received
+								torrent.request_Receiv_ed(req, this);
 							}
 							break;
 						case AbstractMessage.pieceid:
@@ -164,12 +165,23 @@ public class Peer extends Thread{
 					
 					
 				} catch (SocketTimeoutException e) {
-					e.printStackTrace();
-					disconnect_Peer();
-				} catch (IOException e) {
-					e.printStackTrace();
 					disconnect_Peer();
 				}
+    			catch(EOFException e){
+    				 if (currIndex != -1) {
+                         torrent.rerequest(currIndex);
+                     }
+                     disconnect_Peer();
+    			}
+    			catch (IOException e) {
+					if (!is_run)
+                        return;
+                    if (currIndex != -1) {
+                        torrent.rerequest(currIndex);
+                    }
+					disconnect_Peer();
+				}
+    			
     			
     			if ((torrent.getDoneNUM() == torrent.getpieceNUM()) && (pieceCount == torrent.getpieceNUM())) {
                     disconnect_Peer();

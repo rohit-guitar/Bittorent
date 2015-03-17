@@ -15,7 +15,7 @@ public class Torrent extends Thread {
 	private final ExecutorService task = Executors.newCachedThreadPool();
 	private List<Peer> peers;
 	private int pieceNUM;
-	private int LISTENING_PORT=6008;
+	private int LISTENING_PORT;
 	private String local_id;
 	private ServerSocket listener;
 	private HashMap<Integer, ArrayList<Peer>> peerTracker;
@@ -27,7 +27,6 @@ public class Torrent extends Thread {
 	private boolean shut_down;
 
 	public Torrent(String peerID) {
-		LISTENING_PORT = 6008;                                                                             
 		local_id = peerID;                 
 		this.shut_down = false;
 		long total = Long.parseLong(peerProcess.config.getProperty("FileSize"));
@@ -79,10 +78,7 @@ public class Torrent extends Thread {
 			}  	
 
 		}
-		public void start_Peer_Threads(){
-
-		}
-
+		
 		/* add new Peer, send handshake msg adn start peer thread*/
 		public void addNewPeer(Peer newPeer) {
 			if (checkDuplicatePeer(newPeer)) {
@@ -97,7 +93,7 @@ public class Torrent extends Thread {
 			send_Havemsg(newPeer);
 		}   
 
-		/* add new Peer, send handshake msg adn start peer thread, take socket as parameter*/
+		/* add new Peer, send handshake message and start peer thread, take socket as parameter*/
 		public void add_Peer(final Socket incomingsock){
 			Peer newPeer =new Peer(incomingsock, this);
 			if (checkDuplicatePeer(newPeer)) {
@@ -132,6 +128,11 @@ public class Torrent extends Thread {
 					peer.sendHaveMessage(i);
 			}
 		}
+		
+		public void rerequest(int index) {
+			piecesAsked[index] = false;
+	    }
+
 
 
 		public void file_download() {
@@ -208,7 +209,7 @@ public class Torrent extends Thread {
 		public void request_Piece(Peer peer, int index) {
 			try{          
 				peer.reqCheck = true;
-
+				peer.currIndex=index;
 				peer.sendRequestMessage(index); 
 				peer.sendRequestToOut();
 			} catch(IOException e) {
@@ -242,8 +243,14 @@ public class Torrent extends Thread {
 			peer.reqNext();
 			pieceHas[rvfPiece.getPieceIndex()]=true;
 			writePiece(rvfPiece.getPiece(), rvfPiece.getPieceIndex());
-			incrementDone();
-			broadcast(rvfPiece.getPieceIndex());
+			int index=rvfPiece.getPieceIndex();
+			if(pieceHas[index]){
+				peer.reqCheck=false;
+				peer.currIndex=-1;
+				incrementDone();
+				broadcast(rvfPiece.getPieceIndex());
+			}
+			
 		}
 		//Broadcasting have message for piece just received
 		public void broadcast(int index) {
@@ -300,10 +307,12 @@ public class Torrent extends Thread {
 				while((s = br.readLine()) != null) { //reading file till the current peer is founds
 					str=s.split("\\s+"); 
 					if(str[0].equals(local_id)){
+						this.LISTENING_PORT=Integer.parseInt(str[2]);
 						this.pieceHas= new boolean[this.pieceNUM];
 						for(int i=0;i<this.pieceHas.length;i++){
 							if(Integer.parseInt(str[3])==1){
 								this.pieceHas[i]=true;
+								incrementDone();
 							}
 							else{
 								this.pieceHas[i]=false;
