@@ -9,10 +9,14 @@ public class peerProcess {
 	public peerProcess(String peerId) {
 			mainTorrent = new Torrent(peerId);
 	}
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
+		if(args[0].equals("1001")){
+			fs.mainHandler("TheFile.dat", 1);
+		}
         peerProcess main = new peerProcess(args[0]);
-        
+        fs.mkdir(args[0]);
+
         try {
 			Thread.currentThread().sleep(1500);
 		} catch(InterruptedException ie) {
@@ -28,7 +32,7 @@ public class peerProcess {
             }
         }).start();
 		
-		mainTorrent.start();	
+		mainTorrent.start();
     }
     
     private static class ShutdownHook extends Thread {

@@ -6,12 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class FileSplitter
 	{
 	//public static final long floppySize = (long)(1.4 * 1024 * 1024);
-	public static long chunkSize = 500000;
+	public static long chunkSize = Long.parseLong(peerProcess.config.getProperty("PieceSize"));
 	
 	public void mainHandler(String s,int action) throws Exception
 		{
@@ -42,14 +44,14 @@ public class FileSplitter
 		
 	public static void split(String filename) throws FileNotFoundException, IOException
 		{
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(filename));
-		File f = new File(filename);
+		BufferedInputStream in = new BufferedInputStream(new FileInputStream("peer_1001/"+filename));
+		File f = new File("peer_1001/TheFile.dat");
 		long fileSize = f.length();
-		
+		System.out.println("FileSize+  ="+fileSize);
 		int subfile;
 		for (subfile = 0; subfile < fileSize / chunkSize; subfile++)
 			{
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(filename + "." + subfile));
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream("peer_1001/"+filename + "." + subfile));
 			
 			for (int currentByte = 0; currentByte < chunkSize; currentByte++)
 				{
@@ -60,7 +62,7 @@ public class FileSplitter
 		
 		if (fileSize != chunkSize * (subfile - 1))
 			{
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(filename + "." + subfile));
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream("peer_1001/"+filename + "." + subfile));
 			
 			int b;
 			while ((b = in.read()) != -1)
@@ -104,4 +106,17 @@ public class FileSplitter
 			});
 		return matchingFiles.length;
 		}
+		
+		public static void mkdir(String t){
+			File file = new File("peer_"+t);
+			if (!file.exists()) {
+				if (file.mkdir()) {
+					System.out.println("Directory is created!");
+				} else {
+					System.out.println("Failed to create directory!");
+				}
+			}
+		 
+		}
+		
 	}

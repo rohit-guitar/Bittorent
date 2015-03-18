@@ -42,8 +42,8 @@ public class Torrent extends Thread {
 	}
 
 	public void initialPeer() {
-        peers = Collections.synchronizedList(new ArrayList<Peer>());                                                                       //List of Peer objects (instance variable)
-        readFile("peerInfo.cfg");
+        peers = Collections.synchronizedList(new ArrayList<Peer>()); //List of Peer objects (instance variable)
+        readFile("PeerInfo.cfg");
 			for(int i=0;i<peers.size();i++){
 			Peer newpeer = peers.get(i);    		
 			addNewPeer(newpeer);
@@ -54,6 +54,7 @@ public class Torrent extends Thread {
 				peers.remove(newpeer);
 			}
 		}
+		is_Running=true;
 	}		
 
 		// server socket listening and creat new peer which is acorresponding to  a remote machine
@@ -220,7 +221,7 @@ public class Torrent extends Thread {
 		 public void request_Receiv_ed(AbstractMessage.Request request, Peer peer) throws IOException {
 		        int index = request.getreqIndex();
 		        if (index >= 0 && index < pieceNUM) {
-		        	Path path = Paths.get("path/to/file");
+		        	Path path = Paths.get("peer_"+local_id+"/TheFile.dat."+index);
 		        	byte[] data = Files.readAllBytes(path);
 		                AbstractMessage.Piece pm = new AbstractMessage.Piece(index, data);
 		                peer.sendPiece(pm);
@@ -283,13 +284,12 @@ public class Torrent extends Thread {
 
 		public void writePiece(byte[] piece, int index) {
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("Piece");
+			stringBuilder.append("TheFile.dat.");
 			stringBuilder.append(index);
-			stringBuilder.append(".dat");
 
 			String filename=stringBuilder.toString();
 			try {
-				PrintWriter f = new PrintWriter(new FileWriter(filename));
+				PrintWriter f = new PrintWriter(new FileWriter("peer_"+local_id+"/"+filename));
 				f.println(piece);
 				f.flush();
 				f.close();
